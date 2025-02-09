@@ -1,0 +1,44 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2021",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "incremental": true,
+    "skipLibCheck": true,
+    /* Strict Type-Checking */
+    "strict": true,
+    "strictNullChecks": true,
+    "noImplicitAny": true,
+    "strictFunctionTypes": true,
+    "noImplicitReturns": true,
+    "strictBindCallApply": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "strictPropertyInitialization": false,
+    /* Module Resolution */
+    "paths": {
+      "@common/*": [
+        "./src/_common/*"
+      ],
+      "@src/*": [
+        "./src/*"
+      ]
+    }
+  },
+  "watchOptions": {
+    // Use a dynamic polling instead of system’s native events for file changes.
+    "watchFile": "dynamicPriorityPolling",
+    "watchDirectory": "dynamicPriorityPolling",
+    "excludeDirectories": [
+      "**/node_modules",
+      "dist"
+    ]
+  }
+}

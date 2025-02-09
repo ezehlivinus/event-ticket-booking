@@ -1,0 +1,48 @@
+services:
+  api:
+    build:
+      context: .
+      target: ${TARGET:-development}
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - "${PORT:-8000}:8000"
+    env_file:
+      - .env.${NODE_ENV:-development}
+    depends_on:
+      - postgres
+      - rabbitmq
+    networks:
+      - ticket-network
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "${DB_PORT:-6543}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - ticket-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - ticket-network
+
+volumes:
+  postgres_data:
+  rabbitmq_data:
+
+networks:
+  ticket-network:
+    driver: bridge
