@@ -7,27 +7,37 @@ services:
       - .:/usr/src/app
       - /usr/src/app/node_modules
     ports:
-      - "${PORT:-8000}:8000"
+      - "${PORT:-9095}:9095"
     env_file:
       - .env.${NODE_ENV:-development}
     depends_on:
-      - postgres
-      - rabbitmq
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     networks:
       - ticket-network
+    restart: unless-stopped
 
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: ${DB_DATABASE}
-      POSTGRES_USER: ${DB_USERNAME}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE:-ticket_booking_dev}
+      POSTGRES_USER: ${DB_USERNAME:-dev_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-dev_password}
+      POSTGRES_PORT: 5432  # Internal port should always be 5432
     ports:
       - "${DB_PORT:-6543}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - ticket-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-dev_user} -d ${DB_DATABASE:-ticket_booking_dev}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -38,6 +48,13 @@ services:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
       - ticket-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
 
 volumes:
   postgres_data:

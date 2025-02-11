@@ -3,7 +3,9 @@ import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ConfigService } from '@nestjs/config';
 import { ValidationPipe } from '@nestjs/common';
-import { logger } from '@common/config/logger.config';
+import { logger, setupSwagger } from '@common/config';
+import { HttpExceptionFilter } from '@common/filters/error.filter';
+import { TransformInterceptor } from '@common/interceptors/transform.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -11,8 +13,26 @@ async function bootstrap() {
   });
   const configService = app.get(ConfigService);
 
-  app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
+  app.useGlobalFilters(new HttpExceptionFilter());
+  app.useGlobalInterceptors(new TransformInterceptor());
+  
+  const appPrefix = configService.get('app.prefix');
 
+  app.setGlobalPrefix(appPrefix, {
+    exclude: ['/']
+  });
+
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      forbidUnknownValues: true,
+      forbidNonWhitelisted: true,
+      whitelist: true
+    })
+  );
+
+  setupSwagger(app);
   const port = configService.getOrThrow<number>('app.port');
   const environment = configService.getOrThrow('app.envName');
   await app.listen(port);

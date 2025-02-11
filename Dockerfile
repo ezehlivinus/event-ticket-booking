@@ -1,20 +1,20 @@
 FROM node:22-alpine AS base
 WORKDIR /usr/src/app
-COPY package*.json ./
+COPY package*.json yarn.lock ./
 
 # Development stage
 FROM base AS development
-RUN npm install
+RUN yarn install
 COPY . .
 CMD ["npm", "run", "start:dev"]
 
 # Production dependencies
 FROM base AS production-deps
-RUN npm install --production
+RUN yarn install --production
 
 # Build stage
 FROM base AS build
-RUN npm install
+RUN yarn install
 COPY . .
 RUN npm run build
 
