@@ -87,16 +87,3 @@ $ yarn run test:cov
 ```
 # Application Code Documentation
 [app-code-docs](app-docs.md)
-
-# Viewing your Database
-- You can view your database data using the `MongoDB Compass` or any other database viewer of your choice like `Robo 3T` or `Studio 3T`.
-## For local Studio 3T or other MongoDb GUI connection to your dockerized MongoDB, use:
-```bash
-# Connection String - use this in the connection string field
-mongodb://your_username:your_password@localhost:27017/?authSource=admin
-```
-## For your NestJS application inside Docker container, use:
-```bash
-# Connection String - use this in the env file
-mongodb://your_username:your_password@mongodb:27017/?authSource=admin
-```
